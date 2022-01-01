@@ -1,0 +1,1 @@
+gcc -o demo -I../include main.c ../build/libtpal.a -ldl
