@@ -7,12 +7,12 @@
 bool initialized = false;
 tpal_dialog_dispatch_t active_dispatch;
 
-TPAL_PUBLIC_API char * tpal_dialog_open_file() {
+TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title) {
 	if (!initialized) {
 		return NULL;
 	}
 
-	return active_dispatch.open_file();
+	return active_dispatch.open_file(title);
 }
 
 void tpal_dialog_init() {

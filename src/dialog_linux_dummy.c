@@ -6,7 +6,7 @@ void tpal_dialog_linux_dummy_init() {
 
 }
 
-char * tpal_dialog_linux_dummy_open_file() {
+char * tpal_dialog_linux_dummy_open_file(const char * title) {
 	return NULL;
 }
 
