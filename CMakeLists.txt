@@ -10,6 +10,8 @@ add_library(tpal STATIC ${TPAL_SRC})
 set_target_properties(tpal PROPERTIES PUBLIC_HEADER "${TPAL_PUBLIC_HEADERS}")
 target_include_directories(tpal PRIVATE include_private)
 
+target_link_libraries(tpal ${CMAKE_DL_LIBS})
+
 # TODO: make smarter
 find_package(PkgConfig)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
