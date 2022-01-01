@@ -2,6 +2,8 @@
 #define _TPAL_PRIVATE_DIALOG_LINUX_H
 
 typedef struct {
+	void (*init)();
+
 	char * (*open_file)();
 } tpal_dialog_dispatch_t;
 
