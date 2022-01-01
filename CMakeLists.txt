@@ -8,6 +8,7 @@ file(GLOB TPAL_SRC src/*.c)
 add_library(tpal STATIC ${TPAL_SRC})
 
 set_target_properties(tpal PROPERTIES PUBLIC_HEADER "${TPAL_PUBLIC_HEADERS}")
+target_include_directories(tpal PRIVATE include)
 target_include_directories(tpal PRIVATE include_private)
 
 target_link_libraries(tpal ${CMAKE_DL_LIBS})
