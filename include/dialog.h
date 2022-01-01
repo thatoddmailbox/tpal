@@ -13,6 +13,6 @@ typedef struct {
 	TpalDialogFilter * filters;
 } TpalDialogFilterOptions;
 
-char * tpal_dialog_open_file(const char * title);
+char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options);
 
 #endif

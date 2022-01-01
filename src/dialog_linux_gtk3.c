@@ -35,7 +35,7 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_init(NULL, NULL);
 }
 
-char * tpal_dialog_linux_gtk3_open_file(const char * title) {
+char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
 	GtkWidget * dialog = _gtk_file_chooser_dialog_new(
 		title,
 		NULL,
