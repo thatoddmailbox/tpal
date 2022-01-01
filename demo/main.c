@@ -10,7 +10,7 @@ int main(int argc, const char * argv[])
 
 	tpal_init();
 
-	char * result = tpal_dialog_open_file(NULL);
+	char * result = tpal_dialog_open_file(NULL, NULL);
 	printf("result: %s\n", result);
 	if (result != NULL) {
 		free(result);
