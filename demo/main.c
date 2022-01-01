@@ -22,11 +22,16 @@ int main(int argc, const char * argv[])
 	//
 	// open file, filter options
 	//
-	const char * text_extensions[] = {".txt", NULL};
+	const char * text_extensions[] = {"*.txt", NULL};
+	const char * source_extensions[] = {"*.c", "*.cpp", "*.h", NULL};
 	TpalDialogFilter filters[] = {
 		{
 			.name = "Text files",
 			.extensions = text_extensions
+		},
+		{
+			.name = "C/C++ source code",
+			.extensions = source_extensions
 		},
 		{
 			.name = NULL,
@@ -38,7 +43,7 @@ int main(int argc, const char * argv[])
 		.filters = filters
 	};
 
-	result = tpal_dialog_open_file(NULL, NULL);
+	result = tpal_dialog_open_file(NULL, &options);
 	printf("result: %s\n", result);
 	if (result != NULL) {
 		free(result);
