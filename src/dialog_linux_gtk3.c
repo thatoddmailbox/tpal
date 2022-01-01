@@ -70,6 +70,13 @@ char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOpti
 
 			filter++;
 		}
+
+		if (filter_options->allow_all_files) {
+			GtkFileFilter * all_files_filter = _gtk_file_filter_new();
+			_gtk_file_filter_add_pattern(all_files_filter, "*");
+			_gtk_file_filter_set_name(all_files_filter, "All files");
+			_gtk_file_chooser_add_filter((GtkFileChooser *) dialog, all_files_filter);
+		}
 	}
 
 	char * result_filename = NULL;
