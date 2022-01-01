@@ -15,6 +15,10 @@ void (*_g_free)(void * memory);
 void (*_gtk_init)(int * argc, char *** argv);
 GtkWidget * (*_gtk_file_chooser_dialog_new)(const gchar * title, GtkWindow * parent, GtkFileChooserAction action, const gchar * first_button_text, ...);
 gchar * (*_gtk_file_chooser_get_filename)(GtkFileChooser * chooser);
+void (*_gtk_file_chooser_add_filter)(GtkFileChooser * chooser, GtkFileFilter * filte);
+GtkFileFilter * (*_gtk_file_filter_new)();
+void (*_gtk_file_filter_add_pattern)(GtkFileFilter * filter, const gchar * pattern);
+void (*_gtk_file_filter_set_name)(GtkFileFilter * filter, const gchar * name);
 gint (*_gtk_dialog_run)(GtkDialog * dialog);
 void (*_gtk_widget_destroy)(GtkWidget * widget);
 
@@ -29,6 +33,10 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_init = dlsym(libgtk3_handle, "gtk_init");
 	_gtk_file_chooser_dialog_new = dlsym(libgtk3_handle, "gtk_file_chooser_dialog_new");
 	_gtk_file_chooser_get_filename = dlsym(libgtk3_handle, "gtk_file_chooser_get_filename");
+	_gtk_file_chooser_add_filter = dlsym(libgtk3_handle, "gtk_file_chooser_add_filter");
+	_gtk_file_filter_new = dlsym(libgtk3_handle, "gtk_file_filter_new");
+	_gtk_file_filter_add_pattern = dlsym(libgtk3_handle, "gtk_file_filter_add_pattern");
+	_gtk_file_filter_set_name = dlsym(libgtk3_handle, "gtk_file_filter_set_name");
 	_gtk_dialog_run = dlsym(libgtk3_handle, "gtk_dialog_run");
 	_gtk_widget_destroy = dlsym(libgtk3_handle, "gtk_widget_destroy");
 
@@ -46,6 +54,23 @@ char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOpti
 		GTK_RESPONSE_ACCEPT,
 		NULL
 	);
+
+	if (filter_options != NULL && filter_options->filters != NULL) {
+		TpalDialogFilter * filter = filter_options->filters;
+		while (filter->extensions != NULL) {
+			GtkFileFilter * file_filter = _gtk_file_filter_new();
+			const char ** extension = filter->extensions;
+			while (*extension) {
+				_gtk_file_filter_add_pattern(file_filter, *extension);
+				extension++;
+			}
+
+			_gtk_file_filter_set_name(file_filter, filter->name);
+			_gtk_file_chooser_add_filter((GtkFileChooser *) dialog, file_filter);
+
+			filter++;
+		}
+	}
 
 	char * result_filename = NULL;
 	gint result = _gtk_dialog_run((GtkDialog *) dialog);
