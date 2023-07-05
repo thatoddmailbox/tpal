@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.9)
 project(tpal)
 
 file(GLOB TPAL_PUBLIC_HEADERS include/*.h)
-# TODO: make source list smarter
-file(GLOB TPAL_SRC src/*.c)
+
+list(APPEND TPAL_SRC src/init.c)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	list(APPEND TPAL_SRC src/dialog_linux_dummy.c)
+	list(APPEND TPAL_SRC src/dialog_linux_gtk3.c)
+	list(APPEND TPAL_SRC src/dialog_linux.c)
+endif()
 
 add_library(tpal STATIC ${TPAL_SRC})
 
@@ -13,7 +19,9 @@ target_include_directories(tpal PRIVATE include_private)
 
 target_link_libraries(tpal ${CMAKE_DL_LIBS})
 
-# TODO: make smarter
-find_package(PkgConfig)
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-target_include_directories(tpal PRIVATE ${GTK3_INCLUDE_DIRS})
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	# depend on gtk, but only for the include files
+	find_package(PkgConfig)
+	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	target_include_directories(tpal PRIVATE ${GTK3_INCLUDE_DIRS})
+endif()
