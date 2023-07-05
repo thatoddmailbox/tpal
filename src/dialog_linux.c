@@ -17,6 +17,14 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalDialogFilte
 	return active_dispatch.open_file(title, filter_options);
 }
 
+TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options) {
+	if (!initialized) {
+		return NULL;
+	}
+
+	return active_dispatch.save_file(title, filter_options);
+}
+
 void tpal_dialog_init() {
 	// TODO: actually decide this based on something
 	active_dispatch = dispatch_linux_gtk3;

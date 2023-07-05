@@ -16,6 +16,7 @@ void (*_gtk_init)(int * argc, char *** argv);
 GtkWidget * (*_gtk_file_chooser_dialog_new)(const gchar * title, GtkWindow * parent, GtkFileChooserAction action, const gchar * first_button_text, ...);
 gchar * (*_gtk_file_chooser_get_filename)(GtkFileChooser * chooser);
 void (*_gtk_file_chooser_add_filter)(GtkFileChooser * chooser, GtkFileFilter * filte);
+void (*_gtk_file_chooser_set_do_overwrite_confirmation)(GtkFileChooser * chooser, gboolean do_overwrite_confirmation);
 GtkFileFilter * (*_gtk_file_filter_new)();
 void (*_gtk_file_filter_add_pattern)(GtkFileFilter * filter, const gchar * pattern);
 void (*_gtk_file_filter_set_name)(GtkFileFilter * filter, const gchar * name);
@@ -34,6 +35,7 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_file_chooser_dialog_new = dlsym(libgtk3_handle, "gtk_file_chooser_dialog_new");
 	_gtk_file_chooser_get_filename = dlsym(libgtk3_handle, "gtk_file_chooser_get_filename");
 	_gtk_file_chooser_add_filter = dlsym(libgtk3_handle, "gtk_file_chooser_add_filter");
+	_gtk_file_chooser_set_do_overwrite_confirmation = dlsym(libgtk3_handle, "gtk_file_chooser_set_do_overwrite_confirmation");
 	_gtk_file_filter_new = dlsym(libgtk3_handle, "gtk_file_filter_new");
 	_gtk_file_filter_add_pattern = dlsym(libgtk3_handle, "gtk_file_filter_add_pattern");
 	_gtk_file_filter_set_name = dlsym(libgtk3_handle, "gtk_file_filter_set_name");
@@ -43,17 +45,21 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_init(NULL, NULL);
 }
 
-char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
+static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const char * title, TpalDialogFilterOptions * filter_options) {
 	GtkWidget * dialog = _gtk_file_chooser_dialog_new(
 		title,
 		NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN,
+		action,
 		"_Cancel",
 		GTK_RESPONSE_CANCEL,
-		"_Open",
+		(action == GTK_FILE_CHOOSER_ACTION_OPEN ? "_Open" : "_Save"),
 		GTK_RESPONSE_ACCEPT,
 		NULL
 	);
+
+	if (action == GTK_FILE_CHOOSER_ACTION_SAVE) {
+		_gtk_file_chooser_set_do_overwrite_confirmation((GtkFileChooser *) dialog, TRUE);
+	}
 
 	if (filter_options != NULL && filter_options->filters != NULL) {
 		TpalDialogFilter * filter = filter_options->filters;
@@ -93,7 +99,16 @@ char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOpti
 	return result_filename;
 }
 
+char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
+	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_OPEN, title, filter_options);
+}
+
+char * tpal_dialog_linux_gtk3_save_file(const char * title, TpalDialogFilterOptions * filter_options) {
+	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_SAVE, title, filter_options);
+}
+
 tpal_dialog_dispatch_t dispatch_linux_gtk3 = {
 	.init = tpal_dialog_linux_gtk3_init,
-	.open_file = tpal_dialog_linux_gtk3_open_file
+	.open_file = tpal_dialog_linux_gtk3_open_file,
+	.save_file = tpal_dialog_linux_gtk3_save_file
 };

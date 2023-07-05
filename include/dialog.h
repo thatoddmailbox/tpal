@@ -14,5 +14,6 @@ typedef struct {
 } TpalDialogFilterOptions;
 
 char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options);
+char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options);
 
 #endif

@@ -49,5 +49,14 @@ int main(int argc, const char * argv[])
 		free(result);
 	}
 
+	//
+	// save file, no filter options
+	//
+	result = tpal_dialog_save_file(NULL, NULL);
+	printf("result: %s\n", result);
+	if (result != NULL) {
+		free(result);
+	}
+
 	return 0;
 }
