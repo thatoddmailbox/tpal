@@ -9,7 +9,7 @@
 bool initialized = false;
 tpal_dialog_dispatch_t active_dispatch;
 
-TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
+TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogOptions * filter_options) {
 	if (!initialized) {
 		return NULL;
 	}
@@ -17,7 +17,7 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalDialogFilte
 	return active_dispatch.open_file(title, filter_options);
 }
 
-TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options) {
+TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalFileDialogOptions * filter_options) {
 	if (!initialized) {
 		return NULL;
 	}

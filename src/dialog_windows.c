@@ -41,7 +41,7 @@ static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	return result;
 }
 
-TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
+TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogOptions * filter_options) {
 	if (!initialized) {
 		return NULL;
 	}
@@ -92,7 +92,7 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalDialogFilte
 	return file_path;
 }
 
-TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options) {
+TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalFileDialogOptions * filter_options) {
 	if (!initialized) {
 		return NULL;
 	}

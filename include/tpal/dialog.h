@@ -15,10 +15,11 @@ typedef struct {
 typedef struct {
 	bool allow_all_files;
 	TpalDialogFilter * filters;
-} TpalDialogFilterOptions;
+	const char * suggested_name;
+} TpalFileDialogOptions;
 
-char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options);
-char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options);
+char * tpal_dialog_open_file(const char * title, TpalFileDialogOptions * filter_options);
+char * tpal_dialog_save_file(const char * title, TpalFileDialogOptions * filter_options);
 
 #ifdef __cplusplus
 }

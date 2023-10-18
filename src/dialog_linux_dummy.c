@@ -6,11 +6,11 @@ void tpal_dialog_linux_dummy_init() {
 
 }
 
-char * tpal_dialog_linux_dummy_open_file(const char * title, TpalDialogFilterOptions * options) {
+char * tpal_dialog_linux_dummy_open_file(const char * title, TpalFileDialogOptions * options) {
 	return NULL;
 }
 
-char * tpal_dialog_linux_dummy_save_file(const char * title, TpalDialogFilterOptions * options) {
+char * tpal_dialog_linux_dummy_save_file(const char * title, TpalFileDialogOptions * options) {
 	return NULL;
 }
 

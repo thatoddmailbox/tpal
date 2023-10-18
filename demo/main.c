@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
 			.extensions = NULL
 		}
 	};
-	TpalDialogFilterOptions options = {
+	TpalFileDialogOptions options = {
 		.allow_all_files = false,
 		.filters = filters
 	};

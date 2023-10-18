@@ -16,6 +16,7 @@ void (*_gtk_init)(int * argc, char *** argv);
 GtkWidget * (*_gtk_file_chooser_dialog_new)(const gchar * title, GtkWindow * parent, GtkFileChooserAction action, const gchar * first_button_text, ...);
 gchar * (*_gtk_file_chooser_get_filename)(GtkFileChooser * chooser);
 void (*_gtk_file_chooser_add_filter)(GtkFileChooser * chooser, GtkFileFilter * filte);
+void (*_gtk_file_chooser_set_current_name)(GtkFileChooser * chooser, const gchar * current_name);
 void (*_gtk_file_chooser_set_do_overwrite_confirmation)(GtkFileChooser * chooser, gboolean do_overwrite_confirmation);
 GtkFileFilter * (*_gtk_file_filter_new)();
 void (*_gtk_file_filter_add_pattern)(GtkFileFilter * filter, const gchar * pattern);
@@ -35,6 +36,7 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_file_chooser_dialog_new = dlsym(libgtk3_handle, "gtk_file_chooser_dialog_new");
 	_gtk_file_chooser_get_filename = dlsym(libgtk3_handle, "gtk_file_chooser_get_filename");
 	_gtk_file_chooser_add_filter = dlsym(libgtk3_handle, "gtk_file_chooser_add_filter");
+	_gtk_file_chooser_set_current_name = dlsym(libgtk3_handle, "gtk_file_chooser_set_current_name");
 	_gtk_file_chooser_set_do_overwrite_confirmation = dlsym(libgtk3_handle, "gtk_file_chooser_set_do_overwrite_confirmation");
 	_gtk_file_filter_new = dlsym(libgtk3_handle, "gtk_file_filter_new");
 	_gtk_file_filter_add_pattern = dlsym(libgtk3_handle, "gtk_file_filter_add_pattern");
@@ -45,7 +47,7 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_init(NULL, NULL);
 }
 
-static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const char * title, TpalDialogFilterOptions * filter_options) {
+static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const char * title, TpalFileDialogOptions * options) {
 	GtkWidget * dialog = _gtk_file_chooser_dialog_new(
 		title,
 		NULL,
@@ -61,8 +63,13 @@ static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const c
 		_gtk_file_chooser_set_do_overwrite_confirmation((GtkFileChooser *) dialog, TRUE);
 	}
 
-	if (filter_options != NULL && filter_options->filters != NULL) {
-		TpalDialogFilter * filter = filter_options->filters;
+	if (options != NULL && options->suggested_name != NULL && action == GTK_FILE_CHOOSER_ACTION_SAVE) {
+		// note that gtk only supports this for ACTION_SAVE and ACTION_CREATE_FOLDER
+		_gtk_file_chooser_set_current_name((GtkFileChooser *) dialog, options->suggested_name);
+	}
+
+	if (options != NULL && options->filters != NULL) {
+		TpalDialogFilter * filter = options->filters;
 		while (filter->extensions != NULL) {
 			GtkFileFilter * file_filter = _gtk_file_filter_new();
 			const char ** extension = filter->extensions;
@@ -77,7 +84,7 @@ static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const c
 			filter++;
 		}
 
-		if (filter_options->allow_all_files) {
+		if (options->allow_all_files) {
 			GtkFileFilter * all_files_filter = _gtk_file_filter_new();
 			_gtk_file_filter_add_pattern(all_files_filter, "*");
 			_gtk_file_filter_set_name(all_files_filter, "All files");
@@ -99,12 +106,12 @@ static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const c
 	return result_filename;
 }
 
-char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalDialogFilterOptions * filter_options) {
-	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_OPEN, title, filter_options);
+char * tpal_dialog_linux_gtk3_open_file(const char * title, TpalFileDialogOptions * options) {
+	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_OPEN, title, options);
 }
 
-char * tpal_dialog_linux_gtk3_save_file(const char * title, TpalDialogFilterOptions * filter_options) {
-	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_SAVE, title, filter_options);
+char * tpal_dialog_linux_gtk3_save_file(const char * title, TpalFileDialogOptions * options) {
+	return tpal_dialog_linux_gtk3_helper(GTK_FILE_CHOOSER_ACTION_SAVE, title, options);
 }
 
 tpal_dialog_dispatch_t dispatch_linux_gtk3 = {
