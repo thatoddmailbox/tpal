@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "init.h"
-#include "dialog.h"
+#include "tpal/init.h"
+#include "tpal/dialog.h"
 
 int main(int argc, const char * argv[])
 {
