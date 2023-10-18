@@ -5,7 +5,7 @@
 #include <shlobj.h>
 #include <commdlg.h>
 
-#include "dialog.h"
+#include "tpal/dialog.h"
 
 #include "base.h"
 

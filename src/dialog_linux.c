@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "dialog.h"
+#include "tpal/dialog.h"
 
 #include "base.h"
 #include "dialog_linux.h"
