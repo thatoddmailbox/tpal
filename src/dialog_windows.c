@@ -43,14 +43,10 @@ static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	return result;
 }
 
-TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogOptions * filter_options) {
-	if (!initialized) {
-		return NULL;
-	}
-
+static char * tpal_dialog_windows_helper(REFCLSID rclsid, const char * title, TpalFileDialogOptions * options) {
 	IFileDialog * pfd = NULL;
 	HRESULT hr = CoCreateInstance(
-		&CLSID_FileOpenDialog,
+		rclsid,
 		NULL,
 		CLSCTX_INPROC_SERVER,
 		&IID_IFileDialog,
@@ -90,13 +86,20 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogO
 	return file_path;
 }
 
-TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalFileDialogOptions * filter_options) {
+TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogOptions * options) {
 	if (!initialized) {
 		return NULL;
 	}
 
-	// TODO: implement
-	return NULL;
+	return tpal_dialog_windows_helper(&CLSID_FileOpenDialog, title, options);
+}
+
+TPAL_PUBLIC_API char * tpal_dialog_save_file(const char * title, TpalFileDialogOptions * options) {
+	if (!initialized) {
+		return NULL;
+	}
+
+	return tpal_dialog_windows_helper(&CLSID_FileSaveDialog, title, options);
 }
 
 void tpal_dialog_init() {
