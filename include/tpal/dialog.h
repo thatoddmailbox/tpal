@@ -1,6 +1,10 @@
 #ifndef _TPAL_DIALOG_H
 #define _TPAL_DIALOG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 typedef struct {
@@ -15,5 +19,9 @@ typedef struct {
 
 char * tpal_dialog_open_file(const char * title, TpalDialogFilterOptions * filter_options);
 char * tpal_dialog_save_file(const char * title, TpalDialogFilterOptions * filter_options);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
