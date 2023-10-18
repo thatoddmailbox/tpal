@@ -1,7 +1,7 @@
 #ifndef _TPAL_PRIVATE_DIALOG_LINUX_H
 #define _TPAL_PRIVATE_DIALOG_LINUX_H
 
-#include "dialog.h"
+#include "tpal/dialog.h"
 
 typedef struct {
 	void (*init)();
