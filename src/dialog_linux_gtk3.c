@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <dlfcn.h>
 
@@ -16,6 +17,7 @@ void (*_gtk_init)(int * argc, char *** argv);
 GtkWidget * (*_gtk_file_chooser_dialog_new)(const gchar * title, GtkWindow * parent, GtkFileChooserAction action, const gchar * first_button_text, ...);
 gchar * (*_gtk_file_chooser_get_filename)(GtkFileChooser * chooser);
 void (*_gtk_file_chooser_add_filter)(GtkFileChooser * chooser, GtkFileFilter * filte);
+void (*_gtk_file_chooser_set_current_folder)(GtkFileChooser * chooser, const gchar * current_folder);
 void (*_gtk_file_chooser_set_current_name)(GtkFileChooser * chooser, const gchar * current_name);
 void (*_gtk_file_chooser_set_do_overwrite_confirmation)(GtkFileChooser * chooser, gboolean do_overwrite_confirmation);
 GtkFileFilter * (*_gtk_file_filter_new)();
@@ -36,6 +38,7 @@ void tpal_dialog_linux_gtk3_init() {
 	_gtk_file_chooser_dialog_new = dlsym(libgtk3_handle, "gtk_file_chooser_dialog_new");
 	_gtk_file_chooser_get_filename = dlsym(libgtk3_handle, "gtk_file_chooser_get_filename");
 	_gtk_file_chooser_add_filter = dlsym(libgtk3_handle, "gtk_file_chooser_add_filter");
+	_gtk_file_chooser_set_current_folder = dlsym(libgtk3_handle, "gtk_file_chooser_set_current_folder");
 	_gtk_file_chooser_set_current_name = dlsym(libgtk3_handle, "gtk_file_chooser_set_current_name");
 	_gtk_file_chooser_set_do_overwrite_confirmation = dlsym(libgtk3_handle, "gtk_file_chooser_set_do_overwrite_confirmation");
 	_gtk_file_filter_new = dlsym(libgtk3_handle, "gtk_file_filter_new");
@@ -65,7 +68,18 @@ static char * tpal_dialog_linux_gtk3_helper(GtkFileChooserAction action, const c
 
 	if (options != NULL && options->suggested_name != NULL && action == GTK_FILE_CHOOSER_ACTION_SAVE) {
 		// note that gtk only supports this for ACTION_SAVE and ACTION_CREATE_FOLDER
-		_gtk_file_chooser_set_current_name((GtkFileChooser *) dialog, options->suggested_name);
+
+		_gtk_file_chooser_set_current_folder((GtkFileChooser *) dialog, options->suggested_name);
+
+		const char * filename = strrchr(options->suggested_name, '/');
+		if (filename == NULL) {
+			// no slash, it's just a filename by itself
+			filename = options->suggested_name;
+		} else {
+			// don't actually want the / in our filename
+			filename = filename + 1;
+		}
+		_gtk_file_chooser_set_current_name((GtkFileChooser *) dialog, filename);
 	}
 
 	if (options != NULL && options->filters != NULL) {
