@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <windows.h>
 
 #define COBJMACROS
@@ -46,8 +48,8 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogO
 		return NULL;
 	}
 
-    IFileDialog * pfd = NULL;
-    HRESULT hr = CoCreateInstance(
+	IFileDialog * pfd = NULL;
+	HRESULT hr = CoCreateInstance(
 		&CLSID_FileOpenDialog,
 		NULL,
 		CLSCTX_INPROC_SERVER,
@@ -55,7 +57,6 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogO
 		&pfd
 	);
 	if (!SUCCEEDED(hr)) {
-		printf("oof1\n");
 		if (pfd != NULL) {
 			IFileDialog_Release(pfd);
 			pfd = NULL;
@@ -65,21 +66,18 @@ TPAL_PUBLIC_API char * tpal_dialog_open_file(const char * title, TpalFileDialogO
 
 	hr = IFileDialog_Show(pfd, NULL);
 	if (!SUCCEEDED(hr)) {
-		printf("oof2\n");
 		return NULL;
 	}
 
 	IShellItem * result;
 	hr = IFileDialog_GetResult(pfd, &result);
 	if (!SUCCEEDED(hr)) {
-		printf("oof3\n");
 		return NULL;
 	}
 
 	PWSTR wide_file_path = NULL;
 	hr = IShellItem_GetDisplayName(result, SIGDN_FILESYSPATH, &wide_file_path);
 	if (!SUCCEEDED(hr)) {
-		printf("oof4\n");
 		return NULL;
 	}
 
@@ -113,6 +111,4 @@ void tpal_dialog_init() {
 		printf("CoInitializeEx failed with %d\n", res);
 		return;
 	}
-
-	printf("okie\n");
 }
