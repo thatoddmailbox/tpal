@@ -6,8 +6,12 @@ file(GLOB TPAL_PUBLIC_HEADERS include/*.h)
 list(APPEND TPAL_SRC src/init.c)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	add_definitions(-DTPAL_PLATFORM_WINDOWS)
+
 	list(APPEND TPAL_SRC src/dialog_windows.c)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_definitions(-DTPAL_PLATFORM_LINUX)
+
 	list(APPEND TPAL_SRC src/dialog_linux_dummy.c)
 	list(APPEND TPAL_SRC src/dialog_linux_gtk3.c)
 	list(APPEND TPAL_SRC src/dialog_linux.c)
