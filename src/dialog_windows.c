@@ -39,6 +39,32 @@ static PWSTR convert_utf8_to_wchar(const char * utf8_str) {
 	return result;
 }
 
+static PWSTR convert_utf8_to_wchar_com(const char * utf8_str) {
+	// first, figure out how long the utf8 string has to be
+	int size = MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		NULL,
+		0
+	);
+
+	PWSTR result = CoTaskMemAlloc(size * sizeof(WCHAR));
+
+	// now, actually do the conversion
+	MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		result,
+		size
+	);
+
+	return result;
+}
+
 static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	// first, figure out how long the utf8 string has to be
 	int size = WideCharToMultiByte(
@@ -132,6 +158,112 @@ static char * tpal_dialog_windows_helper(REFCLSID rclsid, const char * title, Tp
 		}
 
 		free(wide_file_path);
+	}
+
+	if (options != NULL && options->filters != NULL)  {
+		int filter_count = 0;
+		TpalDialogFilter * filter = options->filters;
+		while (filter->extensions != NULL) {
+			filter_count++;
+			filter++;
+		}
+
+		if (options->allow_all_files) {
+			filter_count++;
+		}
+
+		COMDLG_FILTERSPEC * windows_filters = CoTaskMemAlloc(filter_count * sizeof(COMDLG_FILTERSPEC));
+
+		const PCWSTR all_files_name = L"All Files";
+
+		COMDLG_FILTERSPEC * windows_filter = windows_filters;
+		filter = options->filters;
+		while (filter->extensions != NULL) {
+			windows_filter->pszName = convert_utf8_to_wchar_com(filter->name);
+
+			// windows wants the extensions in a single string, separated by semicolons
+			// for example "*.png; *.jpg; *.jpeg; *.gif"
+
+			// first, calculate how long our string should be
+			size_t spec_string_length = 0;
+			bool first = true;
+
+			const char ** extension = filter->extensions;
+			while (*extension) {
+				if (first) {
+					first = false;
+				} else {
+					// semicolon
+					spec_string_length++;
+
+					// space
+					spec_string_length++;
+				}
+
+				spec_string_length += strlen(*extension);
+
+				extension++;
+			}
+
+			// now, actually build the string
+			char * spec_string = malloc((spec_string_length + 1) * sizeof(char));
+			char * spec_string_pos = spec_string;
+
+			extension = filter->extensions;
+			first = true;
+			while (*extension) {
+				if (first) {
+					first = false;
+				} else {
+					// semicolon
+					*spec_string_pos = ';';
+					spec_string_pos++;
+
+					// space
+					*spec_string_pos = ' ';
+					spec_string_pos++;
+				}
+
+				size_t n = strlen(*extension);
+				memcpy(spec_string_pos, *extension, n * sizeof(char));
+				spec_string_pos += n;
+
+				extension++;
+			}
+			*spec_string_pos = '\0';
+
+			windows_filter->pszSpec = convert_utf8_to_wchar_com(spec_string);
+			free(spec_string);
+
+			windows_filter++;
+			filter++;
+		}
+
+		if (options->allow_all_files) {
+			windows_filter->pszName = all_files_name;
+			windows_filter->pszSpec = L"*.*";
+		}
+
+		hr = IFileDialog_SetFileTypes(pfd, filter_count, windows_filters);
+		if (!SUCCEEDED(hr)) {
+			return NULL;
+		}
+
+		windows_filter = windows_filters;
+		for (int i = 0; i < filter_count; i++) {
+			if (windows_filter->pszName == all_files_name) {
+				// it's a constant, not heap allocated
+				windows_filter++;
+				continue;
+			}
+
+			CoTaskMemFree((PWSTR) windows_filter->pszName);
+			CoTaskMemFree((PWSTR) windows_filter->pszSpec);
+
+			windows_filter++;
+		}
+
+		CoTaskMemFree(windows_filters);
 	}
 
 	hr = IFileDialog_Show(pfd, NULL);
