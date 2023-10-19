@@ -13,6 +13,32 @@
 
 static bool initialized = false;
 
+static PWSTR convert_utf8_to_wchar(const char * utf8_str) {
+	// first, figure out how long the utf8 string has to be
+	int size = MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		NULL,
+		0
+	);
+
+	PWSTR result = malloc(size * sizeof(WCHAR));
+
+	// now, actually do the conversion
+	MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		result,
+		size
+	);
+
+	return result;
+}
+
 static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	// first, figure out how long the utf8 string has to be
 	int size = WideCharToMultiByte(
@@ -26,7 +52,7 @@ static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 		NULL
 	);
 
-	char * result = malloc(size);
+	char * result = malloc(size * sizeof(char));
 
 	// now, actually do the conversion
 	WideCharToMultiByte(
@@ -60,6 +86,54 @@ static char * tpal_dialog_windows_helper(REFCLSID rclsid, const char * title, Tp
 		return NULL;
 	}
 
+	if (options != NULL && options->suggested_name != NULL) {
+		PWSTR wide_file_path = convert_utf8_to_wchar(options->suggested_name);
+
+		PWSTR wide_filename = wcsrchr(wide_file_path, '\\');
+		if (wide_filename == NULL) {
+			// no slash - it's just a filename
+			wide_filename = wide_file_path;
+		} else {
+			// has slash - we have to find the parent folder and set it
+
+			// need to resolve parent folder to IShellItem
+
+			// convert file path into just parent folder
+			wide_filename[0] = '\0';
+
+			IShellItem * parent_folder;
+
+			// TODO: SHCreateItemFromParsingName requires vista or newer
+			// can fix with https://stackoverflow.com/a/20887104/2178519
+			// (but supporting XP or earlier is mostly for the memes I think)
+			hr = SHCreateItemFromParsingName(wide_file_path, NULL, &IID_IShellItem, &parent_folder);
+			if (!SUCCEEDED(hr)) {
+				return NULL;
+			}
+
+			// restore slash to overall path
+			wide_filename[0] = '\\';
+
+			// remove slash from filename string
+			wide_filename = wide_filename + 1;
+
+			// now, we can finally actually set it
+			hr = IFileDialog_SetFolder(pfd, parent_folder);
+			if (!SUCCEEDED(hr)) {
+				return NULL;
+			}
+
+			IShellItem_Release(parent_folder);
+		}
+
+		hr = IFileDialog_SetFileName(pfd, wide_filename);
+		if (!SUCCEEDED(hr)) {
+			return NULL;
+		}
+
+		free(wide_file_path);
+	}
+
 	hr = IFileDialog_Show(pfd, NULL);
 	if (!SUCCEEDED(hr)) {
 		return NULL;
@@ -76,6 +150,8 @@ static char * tpal_dialog_windows_helper(REFCLSID rclsid, const char * title, Tp
 	if (!SUCCEEDED(hr)) {
 		return NULL;
 	}
+
+	IShellItem_Release(result);
 
 	char * file_path = convert_wchar_to_utf8(wide_file_path);
 
