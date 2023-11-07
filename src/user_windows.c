@@ -7,6 +7,33 @@
 #include <ShlObj.h>
 
 // TODO: shouldn't duplicate this code between dialog_windows and here
+static PWSTR convert_utf8_to_wchar(const char * utf8_str) {
+	// first, figure out how long the utf8 string has to be
+	int size = MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		NULL,
+		0
+	);
+
+	PWSTR result = malloc(size * sizeof(WCHAR));
+
+	// now, actually do the conversion
+	MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		utf8_str,
+		-1,
+		result,
+		size
+	);
+
+	return result;
+}
+
+// TODO: shouldn't duplicate this code between dialog_windows and here
 static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	// first, figure out how long the utf8 string has to be
 	int size = WideCharToMultiByte(
@@ -62,6 +89,13 @@ char * tpal_user_get_app_data_path(const char * vendor, const char * program)
 	snprintf(full_path, full_path_length + 1, format_str, path, (vendor ? vendor : ""), ((vendor && program) ? "\\" : "") , (program ? program : ""));
 
 	free(path);
+
+	// ensure the directory exists
+	// (we ignore errors here bcause we don't care if it already exists, that's fine)
+	// also note that SHCreateDirectory is recursive
+	PWSTR wide_full_path = convert_utf8_to_wchar(full_path);
+	SHCreateDirectory(NULL, wide_full_path);
+	free(wide_full_path);
 
 	return full_path;
 }
