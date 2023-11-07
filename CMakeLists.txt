@@ -9,12 +9,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	add_definitions(-DTPAL_PLATFORM_WINDOWS)
 
 	list(APPEND TPAL_SRC src/dialog_windows.c)
+
+	list(APPEND TPAL_SRC src/user_windows.c)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	add_definitions(-DTPAL_PLATFORM_LINUX)
 
 	list(APPEND TPAL_SRC src/dialog_linux_dummy.c)
 	list(APPEND TPAL_SRC src/dialog_linux_gtk3.c)
 	list(APPEND TPAL_SRC src/dialog_linux.c)
+
+	list(APPEND TPAL_SRC src/user_linux.c)
 endif()
 
 add_library(tpal STATIC ${TPAL_SRC})
