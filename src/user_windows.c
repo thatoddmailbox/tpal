@@ -79,14 +79,31 @@ char * tpal_user_get_app_data_path(const char * vendor, const char * program)
 
 	CoTaskMemFree(wide_path);
 
-	// note: path always has no trailing backslash
+	// note: path from windows always has no trailing backslash
+	// we want to return with a trailing slash
 
 	// arguments: path, vendor, vendor slash, program
-	const char * format_str = "%s\\%s%s%s";
+	const char * format_str = "%s\\%s%s%s\\";
 
-	int full_path_length = snprintf(NULL, 0, format_str, path, (vendor ? vendor : ""), ((vendor && program) ? "\\" : "") , (program ? program : ""));
+	int full_path_length = snprintf(
+		NULL,
+		0,
+		format_str,
+		path,
+		(vendor ? vendor : ""),
+		((vendor && program) ? "\\" : ""),
+		(program ? program : "")
+	);
 	char * full_path = malloc(full_path_length + 1);
-	snprintf(full_path, full_path_length + 1, format_str, path, (vendor ? vendor : ""), ((vendor && program) ? "\\" : "") , (program ? program : ""));
+	snprintf(
+		full_path,
+		full_path_length + 1,
+		format_str,
+		path,
+		(vendor ? vendor : ""),
+		((vendor && program) ? "\\" : ""),
+		(program ? program : "")
+	);
 
 	free(path);
 
