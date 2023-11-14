@@ -118,7 +118,16 @@ char * tpal_user_get_app_data_path(const char * vendor, const char * program)
 }
 
 void tpal_user_shell_open(const char * path) {
-	PWSTR wide_path = convert_utf8_to_wchar(path);
+	PWSTR wide_path;
+	if (path) {
+		wide_path = convert_utf8_to_wchar(path);
+	} else {
+		// if null path, default to current working dir
+		// TODO: does this make sense as an api?
+		DWORD buffer_size = GetCurrentDirectoryW(0, NULL);
+		wide_path = malloc(buffer_size * sizeof(WCHAR));
+		GetCurrentDirectoryW(buffer_size, wide_path);
+	}
 
 	ShellExecuteW(NULL, L"open", wide_path, NULL, NULL, SW_SHOWNORMAL);
 
