@@ -116,3 +116,11 @@ char * tpal_user_get_app_data_path(const char * vendor, const char * program)
 
 	return full_path;
 }
+
+void tpal_user_shell_open(const char * path) {
+	PWSTR wide_path = convert_utf8_to_wchar(path);
+
+	ShellExecuteW(NULL, L"open", wide_path, NULL, NULL, SW_SHOWNORMAL);
+
+	free(wide_path);
+}
