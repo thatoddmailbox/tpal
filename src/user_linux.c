@@ -4,6 +4,8 @@
 // TODO: does everyone have that? is it safe to use/portable?
 #define _GNU_SOURCE
 
+#include <string.h>
+
 #include <dirent.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -100,6 +102,10 @@ static void closeall(const unsigned long mask) {
 	}
 
 	closedir(dir);
+}
+
+char * tpal_user_get_temp_path() {
+	return strdup("/tmp/");
 }
 
 void tpal_user_shell_open(const char * path) {
