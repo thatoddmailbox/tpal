@@ -117,6 +117,21 @@ char * tpal_user_get_app_data_path(const char * vendor, const char * program)
 	return full_path;
 }
 
+char * tpal_user_get_temp_path() {
+	// TODO: should we use GetTempPath2 if it's available?
+	DWORD wide_path_len = GetTempPathW(0, NULL);
+	if (wide_path_len == 0) {
+		return NULL;
+	}
+
+	PWSTR wide_path = malloc((wide_path_len + 1) * sizeof(WCHAR));
+	GetTempPathW(wide_path_len, wide_path);
+
+	char * path = convert_wchar_to_utf8(wide_path);
+	free(wide_path);
+	return path;
+}
+
 void tpal_user_shell_open(const char * path) {
 	PWSTR wide_path;
 	if (path) {
