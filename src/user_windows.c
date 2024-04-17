@@ -64,8 +64,7 @@ static char * convert_wchar_to_utf8(PWSTR wchar_str) {
 	return result;
 }
 
-char * tpal_user_get_app_data_path(const char * vendor, const char * program)
-{
+char * tpal_user_get_app_data_path(const char * vendor, const char * program) {
 	// TODO: only supports vista and newer
 
 	PWSTR wide_path;
