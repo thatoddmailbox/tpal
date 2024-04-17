@@ -315,6 +315,7 @@ void tpal_dialog_init() {
 
 	// IFileDialog requires COM, set that up now
 	// note S_FALSE is OK as a result because it means someone else initialized COM for us
+	// RPC_E_CHANGED_MODE is OK because it means we are initialized, just in a different threading mode
 	// TODO: think about this more in the context of someone else also using COM
 	HRESULT res = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	if (res != S_OK && res != S_FALSE && res != RPC_E_CHANGED_MODE) {
