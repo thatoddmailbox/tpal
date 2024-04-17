@@ -317,7 +317,7 @@ void tpal_dialog_init() {
 	// note S_FALSE is OK as a result because it means someone else initialized COM for us
 	// TODO: think about this more in the context of someone else also using COM
 	HRESULT res = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-	if (res != S_OK && res != S_FALSE) {
+	if (res != S_OK && res != S_FALSE && res != RPC_E_CHANGED_MODE) {
 		// TODO: how to report this?
 		printf("CoInitializeEx failed with %d\n", res);
 		return;
