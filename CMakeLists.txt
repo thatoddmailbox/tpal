@@ -19,6 +19,12 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	list(APPEND TPAL_SRC src/dialog_linux.c)
 
 	list(APPEND TPAL_SRC src/user_linux.c)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	add_definitions(-DTPAL_PLATFORM_MACOS)
+
+	list(APPEND TPAL_SRC src/dialog_macos.c)
+
+	list(APPEND TPAL_SRC src/user_macos.c)
 endif()
 
 add_library(tpal STATIC ${TPAL_SRC})
