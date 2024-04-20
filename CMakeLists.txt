@@ -24,7 +24,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 	list(APPEND TPAL_SRC src/dialog_macos.c)
 
-	list(APPEND TPAL_SRC src/user_macos.c)
+	list(APPEND TPAL_SRC src/user_macos.m)
 endif()
 
 add_library(tpal STATIC ${TPAL_SRC})
